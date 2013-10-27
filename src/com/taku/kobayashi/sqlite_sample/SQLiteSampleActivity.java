@@ -1,6 +1,6 @@
 package com.taku.kobayashi.sqlite_sample;
 
-import com.example.com.taku.kobayashi.sqlite_sample.R;
+import com.taku.kobayashi.sqlite_sample.R;
 
 import android.os.Bundle;
 import android.app.Activity;
