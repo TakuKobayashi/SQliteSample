@@ -40,10 +40,9 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	//初回はcreateされるが二回目以降はcreateされない
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		JSONObject migrationJSON = Tools.loadJSONFromAsset(_context, MIGRATION_JSON_FILE_NAME);
-		ArrayList<String> SQLList = Tools.makeMigrateSQLList(migrationJSON);
+		ArrayList<String> SQLList = MigrationConfig.createTable();
 		Log.d(TAG, ""+SQLList);
-		for(int i = 0; i < SQLList.size(); i++){
+		for(int i = 0; i < SQLList.size(); ++i){
 			db.execSQL(SQLList.get(i));
 		}
 	}

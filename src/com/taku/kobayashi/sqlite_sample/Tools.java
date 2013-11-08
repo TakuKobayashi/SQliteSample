@@ -59,20 +59,9 @@ public class Tools{
 				for(int j = 0; j < columnNames.length(); ++j){
 					String columnName = columnNames.getString(j);
 					SQL = SQL + columnName + " ";
-					JSONObject columnDataTypes = tableColumns.getJSONObject(columnName);
-					JSONArray typeNames = columnDataTypes.names();
-					for(int k = 0; k < typeNames.length(); ++k){
-						String typeName = typeNames.getString(k);
-						JSONArray options = columnDataTypes.getJSONArray(typeName);
-						SQL = SQL + typeName + " ";
-						for(int l = 0; l < options.length(); ++l){
-							SQL = SQL + options.getString(l);
-							if(l < options.length() - 1){
-								SQL = SQL + " ";
-							}
-						}
-					}
+					SQL = SQL + tableColumns.getString(columnName);
 					SQL = SQL + ",";
+					Log.d(TAG,SQL);
 				}
 				SQL = SQL + "updated_at TEXT NOT NULL,";
 				SQL = SQL + "created_at TEXT NOT NULL";
