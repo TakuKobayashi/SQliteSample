@@ -3,9 +3,29 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<TextView
+	<EditText
+		android:id="@+id/tweetEditText"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/hello_world" />
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+	/>
+
+	<Button
+		android:id="@+id/saveButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@+id/tweetEditText"
+		android:layout_alignParentTop="true"
+		android:text="save"
+	/>
+
+	<ListView
+		android:id="@+id/tweetList"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/tweetEditText"
+		android:layout_centerHorizontal="true"
+	/>
 
 </RelativeLayout>

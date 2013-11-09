@@ -41,7 +41,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		ArrayList<String> SQLList = MigrationConfig.createTable();
-		Log.d(TAG, ""+SQLList);
 		for(int i = 0; i < SQLList.size(); ++i){
 			db.execSQL(SQLList.get(i));
 		}

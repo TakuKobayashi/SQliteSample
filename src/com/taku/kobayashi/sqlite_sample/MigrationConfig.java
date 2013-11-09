@@ -1,29 +1,14 @@
 package com.taku.kobayashi.sqlite_sample;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.os.Bundle;
-import android.app.Activity;
-import android.content.Context;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.view.Menu;
 
 public class MigrationConfig{
 
-	private static final String TABLENAME1 = "tweet";
+	//DBのバージョン番号、これを変えると、upgradeが走る
+	public static final int DBVERSION = 1;
+	public static final String TWEET_TABLE = "tweet";
 
 	public static ArrayList<String> createTable() {
 		ArrayList<String> SQLList = new ArrayList<String>();
@@ -54,7 +39,7 @@ public class MigrationConfig{
 			"updated_at TEXT NOT NULL",
 			"created_at TEXT NOT NULL"
 		};
-		tableData.put(TABLENAME1, columns1);
+		tableData.put(TWEET_TABLE, columns1);
 		return tableData;
 	}
 }
