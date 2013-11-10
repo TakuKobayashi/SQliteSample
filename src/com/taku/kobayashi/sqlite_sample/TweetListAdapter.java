@@ -35,13 +35,10 @@ public class TweetListAdapter extends BaseAdapter {
 
 	private void loadTweetText(){
 		_tweetTextList.clear();
-		Cursor data = _model.all();
-		boolean next = data.moveToFirst();
-		while (next) {
-			_tweetTextList.add(data.getString(data.getColumnIndex("message")));
-			next = data.moveToNext();
+		ArrayList<Bundle> dataList = _model.all();
+		for(int i = 0;i < dataList.size();++i){
+			_tweetTextList.add(dataList.get(i).getString("message"));
 		}
-		data.close();
 		this.notifyDataSetChanged();
 	}
 

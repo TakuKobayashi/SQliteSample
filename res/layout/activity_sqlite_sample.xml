@@ -5,17 +5,20 @@
 
 	<EditText
 		android:id="@+id/tweetEditText"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@+id/saveButton"
 		android:layout_alignParentTop="true"
+		android:layout_alignBottom="@+id/saveButton"
+		android:background="#FFFFFFFF"
+		android:textColor="#FF000000"
 	/>
 
 	<Button
 		android:id="@+id/saveButton"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_toRightOf="@+id/tweetEditText"
+		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
 		android:text="save"
 	/>

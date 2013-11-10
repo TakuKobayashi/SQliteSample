@@ -2,7 +2,11 @@ package com.taku.kobayashi.sqlite_sample;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,5 +80,15 @@ public class Tools{
 
 	public static String convertCurrentTime(){
 		return DateFormat.format("yyyy-MM-dd_kk.mm.ss", System.currentTimeMillis()).toString();
+	}
+
+	public static Date convertStringToDate(String dateString){
+		if(dateString == null) return null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		try {
+			return sdf.parse(dateString);
+		} catch (ParseException e) {
+			return null;
+		}
 	}
 }
