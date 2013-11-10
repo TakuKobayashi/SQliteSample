@@ -79,12 +79,12 @@ public class Tools{
 	}
 
 	public static String convertCurrentTime(){
-		return DateFormat.format("yyyy-MM-dd_kk.mm.ss", System.currentTimeMillis()).toString();
+		return DateFormat.format("yyyy/MM/dd kk:mm:ss", System.currentTimeMillis()).toString();
 	}
 
 	public static Date convertStringToDate(String dateString){
 		if(dateString == null) return null;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
 		try {
 			return sdf.parse(dateString);
 		} catch (ParseException e) {

@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -19,7 +20,7 @@ import android.widget.TextView;
 public class TweetListAdapter extends BaseAdapter {
 	//ここではGridViewやListViewで表示させるデータの操作を行う
 
-	private static final String TAG = "Noz_Adapter";
+	private static final String TAG = "SQLite_Sample_TweetListAdapter";
 	private ArrayList<String> _tweetTextList;
 	private Activity _activity;
 	private ActiveRecordPartial _model;
@@ -35,6 +36,7 @@ public class TweetListAdapter extends BaseAdapter {
 
 	private void loadTweetText(){
 		_tweetTextList.clear();
+		Log.d(TAG, "first:"+_model.first());
 		ArrayList<Bundle> dataList = _model.all();
 		for(int i = 0;i < dataList.size();++i){
 			_tweetTextList.add(dataList.get(i).getString("message"));

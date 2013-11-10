@@ -88,6 +88,21 @@ public class ActiveRecordPartial{
 		return list;
 	}
 
+	public Bundle first(){
+		_sql = "SELECT '"+ _tableName + "'.* FROM " + _tableName + ";";
+		Bundle b = new Bundle();
+		Cursor data = _db.rawQuery(_sql, new String[]{});
+		boolean first = data.moveToFirst();
+		
+		if(first){
+			putCursorToBundle(b, data);
+			data.close();
+			return b;
+		}else{
+			data.close();
+			return b;
+		}
+	}
 
 	public void update_attributes(Map<String,Object> data){
 	}
