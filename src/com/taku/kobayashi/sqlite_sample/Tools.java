@@ -14,7 +14,9 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -90,5 +92,67 @@ public class Tools{
 		} catch (ParseException e) {
 			return null;
 		}
+	}
+
+	public static String join(String[] list, String with) {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < list.length; i++) {
+		if (i != 0) { buf.append(with);}
+			buf.append(list[i]);
+		}
+		return buf.toString();
+	}
+
+	public static String join(ArrayList<String> list, String with) {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < list.size(); i++) {
+			if (i != 0) { buf.append(with);}
+			buf.append(list.get(i));
+		}
+		return buf.toString();
+	}
+
+	public static final void putObjectToContentValues(ContentValues cv, String key, Object value){
+		if(value instanceof String){
+			String v = (String) value;
+			cv.put(key, v);
+		}else if(value instanceof Byte){
+			byte v = (Byte) value;
+			cv.put(key, v);
+		}else if(value instanceof byte[]){
+			byte[] v = (byte[]) value;
+			cv.put(key, v);
+		}else if(value instanceof Integer){
+			int v = (Integer) value;
+			cv.put(key, v);
+		}else if(value instanceof Float){
+			float v = (Float) value;
+			cv.put(key, v);
+		}else if(value instanceof Short){
+			short v = (Short) value;
+			cv.put(key, v);
+		}else if(value instanceof Double){
+			double v = (Double) value;
+			cv.put(key, v);
+		}else if(value instanceof Long){
+			long v = (Long) value;
+			cv.put(key, v);
+		}else if(value instanceof Boolean){
+			boolean v = (Boolean) value;
+			cv.put(key, v);
+		}
+	}
+
+	public static final void putCursorToBundle(Bundle b, Cursor c){
+		String[] columnNames = c.getColumnNames();
+		for(int i = 0;i < columnNames.length; ++i){
+			String key = columnNames[i];
+			String value = c.getString(i);
+			b.putString(key, value);
+		}
+	}
+
+	public static final void putObjectToStringBundle(Bundle b, String key, Object value){
+		b.putString(key, value.toString());
 	}
 }

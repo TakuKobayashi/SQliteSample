@@ -20,8 +20,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteAbortException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.view.Menu;
@@ -29,10 +31,15 @@ import android.view.Menu;
 //ActiveRecordっぽいものを作ってみました
 public class ActiveRecordPartial{
 
-	private static final String TAG = "SQLite_Sample_ActiveRecordPartial";;
+	private static final String TAG = "SQLite_Sample_ActiveRecordPartial";
 	private SQLiteDatabase _db;
 	protected String _tableName;
-	private String _sql;
+	private ArrayList<String> _whereList;
+	private ArrayList<String> _orderList;
+	private ArrayList<String> _selectList;
+	private String _limitSQL = "";
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	//継承先でmodelとして使いたいときはthis.getClass().getSimpleName()でテーブル名をとってきて扱う方がいい
 	public ActiveRecordPartial(Context context, String tableName){
@@ -40,125 +47,259 @@ public class ActiveRecordPartial{
 		DBOpenHelper DBHelper = new DBOpenHelper(context, dbName, MigrationConfig.DBVERSION);
 		_db = DBHelper.getWritableDatabase();
 		_tableName = tableName;
+		_whereList = new ArrayList<String>();
+		_orderList = new ArrayList<String>();
+		_selectList = new ArrayList<String>();
 	}
 
-	public void create(String key,Object data){
-		if(data == null) return;
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//TODO
+	public static void importInstances(ArrayList<ActiveRecordPartialInstance> list){
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//TODO
+	public ActiveRecordPartialInstance newInstance(){
+		return null;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//TODO
+	public ActiveRecordPartialInstance newInstance(Bundle data){
+		return null;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//TODO
+	public ActiveRecordPartialInstance newInstance(Map<String,Object> data){
+		return null;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ActiveRecordPartialInstance create(String key,Object data){
+		Bundle b = new Bundle();
 		ContentValues cv = new ContentValues();
-		putObjectToContentValues(cv, key, data);
+		Tools.putObjectToContentValues(cv, key, data);
+		b.putString(key, data.toString());
 		_db.insert(_tableName, null, cv);
+		this.release();
+		return new ActiveRecordPartialInstance(this, b);
 	}
 
-	public void create(Map<String,Object> data){
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ActiveRecordPartialInstance create(Map<String,Object> data){
 		ContentValues cv = new ContentValues();
+		Bundle b = new Bundle();
 		for(Entry<String, Object> e : data.entrySet()) {
 			if(e.getValue() == null) continue;
-			putObjectToContentValues(cv, e.getKey(), e.getValue());
+			Tools.putObjectToContentValues(cv, e.getKey(), e.getValue());
+			b.putString(e.getKey(), e.getValue().toString());
 		}
 		_db.insert(_tableName, null, cv);
+		this.release();
+		return new ActiveRecordPartialInstance(this, b);
 		//bulk_insertする時用
 		//db.execSQL("insert into person_table(name,age) values (?, ?);",new Object[]{"本田 圭佑",24});
 	}
 
-	public void create(Bundle data){
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ActiveRecordPartialInstance create(Bundle data){
 		Set<String> keys = data.keySet();
 		ContentValues cv = new ContentValues();
+		Bundle b = new Bundle();
 		for (String key : keys) {
 			if(data.get(key) == null) continue;
-			putObjectToContentValues(cv, key, data.get(key));
+			Tools.putObjectToContentValues(cv, key, data.get(key));
+			b.putString(key, data.get(key).toString());
 		}
 		_db.insert(_tableName, null, cv);
+		this.release();
+		return new ActiveRecordPartialInstance(this, b);
 	}
 
-	public ArrayList<Bundle> all(){
-		_sql = "SELECT '"+ _tableName + "'.* FROM " + _tableName + ";";
-		ArrayList<Bundle> list = new ArrayList<Bundle>();
-		Cursor data = _db.rawQuery(_sql, new String[]{});
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public String to_sql(){
+		return makeSelectSQL();
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ArrayList<ActiveRecordPartialInstance> all(){
+		String sql = makeSelectSQL();
+		ArrayList<ActiveRecordPartialInstance> list = new ArrayList<ActiveRecordPartialInstance>();
+		Cursor data = _db.rawQuery(sql, new String[]{});
+		this.release();
 		boolean next = data.moveToFirst();
 		while (next) {
 			Bundle b = new Bundle();
 			int columnCount = data.getColumnCount();
 			for(int i = 0;i < columnCount; ++i){
-				putCursorToBundle(b, data);
+				Tools.putCursorToBundle(b, data);
 			}
-			list.add(b);
+			list.add(new ActiveRecordPartialInstance(this, b));
 			next = data.moveToNext();
 		}
 		data.close();
 		return list;
 	}
 
-	public Bundle first(){
-		_sql = "SELECT '"+ _tableName + "'.* FROM " + _tableName + ";";
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ActiveRecordPartialInstance first(){
+		_limitSQL = " LIMIT 1";
+		String sql = makeSelectSQL();
 		Bundle b = new Bundle();
-		Cursor data = _db.rawQuery(_sql, new String[]{});
+		Cursor data = _db.rawQuery(sql, new String[]{});
+		this.release();
 		boolean first = data.moveToFirst();
-		
 		if(first){
-			putCursorToBundle(b, data);
+			Tools.putCursorToBundle(b, data);
 			data.close();
-			return b;
+			return new ActiveRecordPartialInstance(this, b);
 		}else{
 			data.close();
-			return b;
+			return null;
 		}
 	}
 
-	public void update_attributes(Map<String,Object> data){
-	}
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	public void update_attributes(Bundle data){
-
-	}
-
-	private final void putObjectToContentValues(ContentValues cv, String key, Object value){
-		if(value instanceof String){
-			String v = (String) value;
-			cv.put(key, v);
-		}else if(value instanceof Byte){
-			byte v = (Byte) value;
-			cv.put(key, v);
-		}else if(value instanceof byte[]){
-			byte[] v = (byte[]) value;
-			cv.put(key, v);
-		}else if(value instanceof Integer){
-			int v = (Integer) value;
-			cv.put(key, v);
-		}else if(value instanceof Float){
-			float v = (Float) value;
-			cv.put(key, v);
-		}else if(value instanceof Short){
-			short v = (Short) value;
-			cv.put(key, v);
-		}else if(value instanceof Double){
-			double v = (Double) value;
-			cv.put(key, v);
-		}else if(value instanceof Long){
-			long v = (Long) value;
-			cv.put(key, v);
-		}else if(value instanceof Boolean){
-			boolean v = (Boolean) value;
-			cv.put(key, v);
+	public ActiveRecordPartialInstance last(){
+		_limitSQL = " LIMIT 1";
+		String sql = makeSelectSQL();
+		Bundle b = new Bundle();
+		Cursor data = _db.rawQuery(sql, new String[]{});
+		this.release();
+		boolean last = data.moveToLast();
+		if(last){
+			Tools.putCursorToBundle(b, data);
+			data.close();
+			return new ActiveRecordPartialInstance(this, b);
+		}else{
+			data.close();
+			return null;
 		}
 	}
 
-	private final void putCursorToBundle(Bundle b, Cursor c){
-		String[] columnNames = c.getColumnNames();
-		for(int i = 0;i < columnNames.length; ++i){
-			String key = columnNames[i];
-			String value = c.getString(i);
-			if(value == null) continue;
-			Date date = Tools.convertStringToDate(value);
-			if(date != null){
-				b.putLong(key,date.getTime());
-				continue;
-			}
-			try {
-				double val = Double.parseDouble(value);
-				b.putDouble(key, val);
-			} catch(NumberFormatException e) {
-				b.putString(key, value);
-			}
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	public ActiveRecordPartial where(Map<String,Object> data){
+		for(Entry<String, Object> e : data.entrySet()) {
+			if(e.getValue() == null) continue;
+			String whereSQL = "";
+			whereSQL = "'" + e.getKey() + "' = " + e.getValue();
+			_whereList.add(whereSQL);
 		}
+		return this;
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ActiveRecordPartial where(Bundle data){
+		Set<String> keys = data.keySet();
+		for (String key : keys) {
+			if(data.get(key) == null) continue;
+			String whereSQL = "";
+			whereSQL = "'" + key + "' = " + data.get(key).toString();
+			_whereList.add(whereSQL);
+		}
+		return this;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public ActiveRecordPartial where(String str){
+		_whereList.add(str);
+		return this;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public int update_all(Map<String,Object> data){
+		ContentValues cv = new ContentValues();
+		for(Entry<String, Object> e : data.entrySet()) {
+			if(e.getValue() == null) continue;
+			Tools.putObjectToContentValues(cv, e.getKey(), e.getValue());
+		}
+		int count = _db.update(_tableName, cv, Tools.join(_whereList, " AND "), null);
+		this.release();
+		return count;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public int update_all(Bundle data){
+		Set<String> keys = data.keySet();
+		ContentValues cv = new ContentValues();
+		for (String key : keys) {
+			if(data.get(key) == null) continue;
+			Tools.putObjectToContentValues(cv, key, data.get(key));
+		}
+		int count = _db.update(_tableName, cv, Tools.join(_whereList, " AND "), null);
+		this.release();
+		return count;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public int destroy_all(){
+		int count = _db.delete(_tableName, Tools.join(_whereList, " AND "), null);
+		this.release();
+		return count;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public int count(){
+		String sql = makeSelectSQL();
+		Cursor data = _db.rawQuery(sql, new String[]{});
+		return data.getCount();
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//SQLを発行するものは全部一度SQLの条件をクリアにする必要があるので、このメソッドを呼ぶ
+	private void release(){
+		_whereList.clear();
+		_orderList.clear();
+		_selectList.clear();;
+		_limitSQL = "";
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	private String makeSelectSQL(){
+		String sql = "";
+		if(_selectList.isEmpty()){
+			sql = "SELECT '"+ _tableName + "'.* FROM '" + _tableName + "'";
+		}else{
+			String selects = "";
+			selects = Tools.join(_selectList, ",");
+			sql = "SELECT " + selects + " FROM '" + _tableName + "'";
+		}
+		String wheres = "";
+		wheres = Tools.join(_whereList, " AND ");
+		if(wheres.isEmpty() == false){
+			sql = sql + " WHERE " + wheres;
+		}
+		String orders = "";
+		orders = Tools.join(_orderList, ",");
+		if(_orderList.isEmpty() == false){
+			sql = sql + " ORDER BY " + orders;
+		}
+		sql = sql + _limitSQL;
+		sql = sql + ";";
+		return sql;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 }

@@ -4,5 +4,11 @@
 	<string name="app_name">sqlite_sample</string>
 	<string name="action_settings">Settings</string>
 	<string name="hello_world">Hello world!</string>
+	<string name="deleteDialogMessage">本当に削除しますか?</string>
+	<string name="selectYesText">はい</string>
+	<string name="selectNoText">いいえ</string>
+	<string name="updateDialogTitle">メッセージ変更</string>
+	<string name="updateDecideButtonText">編集</string>
+	<string name="cancelButtonText">キャンセル</string>
 
 </resources>

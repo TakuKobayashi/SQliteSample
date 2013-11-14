@@ -8,8 +8,26 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_centerHorizontal="true"
+		android:layout_alignParentLeft="true"
 		android:textColor="#FFFFFFFF"
+	/>
+
+	<Button
+		android:id="@+id/UpdateButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toLeftOf="@+id/DeleteButton"
+		android:text="update"
+	/>
+
+	<Button
+		android:id="@+id/DeleteButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_alignParentRight="true"
+		android:text="delete"
 	/>
 
 </RelativeLayout>
